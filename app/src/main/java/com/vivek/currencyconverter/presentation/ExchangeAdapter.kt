@@ -12,6 +12,14 @@ import com.vivek.currencyconverter.utils.roundOffDecimal
 class ExchangeAdapter : ListAdapter<CurrencyExchange, ExchangeAdapter.ViewHolder>(diffCallback) {
 
 
+    init {
+        setHasStableIds(true)
+    }
+
+    override fun getItemId(position: Int): Long {
+        return currentList[position].hashCode().toLong()
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder.from(parent)
     }
@@ -32,7 +40,7 @@ class ExchangeAdapter : ListAdapter<CurrencyExchange, ExchangeAdapter.ViewHolder
         ) {
             binding.apply {
                 binding.tvCode.text = item.code
-                binding.tvRate.text = (item.value * item.rate).roundOffDecimal().toString()
+                binding.tvRate.text = item.rate.roundOffDecimal().toString()
             }
         }
 
@@ -60,7 +68,7 @@ class ExchangeAdapter : ListAdapter<CurrencyExchange, ExchangeAdapter.ViewHolder
                     oldItem: CurrencyExchange,
                     newItem: CurrencyExchange
                 ): Boolean {
-                    return oldItem.code == newItem.code
+                    return oldItem == newItem
                 }
             }
     }

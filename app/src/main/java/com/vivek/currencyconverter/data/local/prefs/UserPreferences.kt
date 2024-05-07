@@ -1,7 +1,6 @@
 package com.vivek.currencyconverter.data.local.prefs
 
 import android.content.SharedPreferences
-import android.util.Base64
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -15,18 +14,16 @@ class UserPreferences @Inject constructor(
      * all the KEY's related to Shared Preferences
      */
     companion object {
-        private const val DB_ROOM_KEY = "RoomKey"
-        private const val LOGIN_TYPE = "login_type"
-
+        private const val LAST_REFRESH_TIME = "last_refresh_time"
     }
 
-    private fun encodeToString(aKey: ByteArray): String {
-        return Base64.encodeToString(aKey, Base64.DEFAULT)
+    fun saveLastRefreshTime(time: Long) {
+        editor.putLong(LAST_REFRESH_TIME, time)
+        editor.apply()
     }
 
-    private fun decodeFromString(aSavedKey: String): ByteArray {
-        return Base64.decode(aSavedKey, Base64.DEFAULT)
+    fun getLastRefreshTime(): Long {
+        return pref.getLong(LAST_REFRESH_TIME, 0L)
     }
-
 
 }

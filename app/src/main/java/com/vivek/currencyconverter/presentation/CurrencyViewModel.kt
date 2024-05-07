@@ -3,10 +3,11 @@ package com.vivek.currencyconverter.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.vivek.currencyconverter.data.local.database.CurrencyExchange
-import com.vivek.currencyconverter.data.repository.ExchangeRepository
+import com.vivek.currencyconverter.domain.ExchangeRepository
 import com.vivek.currencyconverter.utils.network.Resource
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.launch
@@ -23,8 +24,8 @@ class CurrencyViewModel @Inject constructor(
     val currencyRates = _currencyRates.asStateFlow()
 
 
-    private val _currencyRatesUpdates = MutableStateFlow(currencyRates.value.data ?: emptyList())
-    val currencyRatesUpdates = _currencyRatesUpdates.asStateFlow()
+    private val _currencyRatesUiState = MutableStateFlow<Resource<List<CurrencyExchange>>>(Resource.Loading())
+    val currencyRatesUiState: StateFlow<Resource<List<CurrencyExchange>>> = _currencyRatesUiState
 
     val currenciesList = mutableListOf<String>()
 
@@ -34,7 +35,7 @@ class CurrencyViewModel @Inject constructor(
     }
 
     // get currency rates
-    fun getCurrencyRates() {
+    private fun getCurrencyRates() {
         viewModelScope.launch {
             _currencyRates.emit(Resource.Loading())
             repo.getCurrencyRates().catch {
@@ -55,19 +56,17 @@ class CurrencyViewModel @Inject constructor(
     }
 
 
-    fun updateCurrencyValue(code: String, value: Double) {
+    fun convertCurrency(amount: Double, selectedCurrency: String) {
         viewModelScope.launch {
-            val currencyExchange = _currencyRatesUpdates.value.find { it.code == code }
-            currencyExchange?.let {
-                val updatedCurrencyExchange = it.copy(value = value)
-                //based on this update all currency rate with new selected base currency
-                val updatedList = _currencyRatesUpdates.value.map {
-                    val rate = it.rate / updatedCurrencyExchange.rate
-                    it.copy(value = rate * updatedCurrencyExchange.value)
+            repo.convertCurrencies(amount, selectedCurrency, currencyRates.value.data ?: emptyList())
+                .onSuccess {
+                    _currencyRatesUiState.emit(Resource.Success(it))
                 }
-                _currencyRatesUpdates.emit(updatedList)
-            }
+                .onFailure { e ->
+                    _currencyRatesUiState.emit(Resource.Error(e))
+                }
         }
+
     }
 
 }

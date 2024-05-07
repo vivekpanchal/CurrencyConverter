@@ -1,6 +1,6 @@
 package com.vivek.currencyconverter.di // ktlint-disable package-name
 
-import com.vivek.currencyconverter.data.repository.ExchangeRepository
+import com.vivek.currencyconverter.domain.ExchangeRepository
 import com.vivek.currencyconverter.data.repository.ExchangeRepositoryImpl
 import dagger.Binds
 import dagger.Module
