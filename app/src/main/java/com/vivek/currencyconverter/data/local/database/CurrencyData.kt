@@ -12,10 +12,10 @@ import kotlinx.parcelize.Parcelize
 )
 data class CurrencyExchange(
     @PrimaryKey val code: String,
-    val name: String,
-    val rate: Double,
-    val base: String,
-    val value: Double
+    val name: String, // name of the currency
+    val rate: Double, // rate of the currency
+    val base: String, //base currency
+    val value: Double // value of the currency
 ) : Parcelable
 
 

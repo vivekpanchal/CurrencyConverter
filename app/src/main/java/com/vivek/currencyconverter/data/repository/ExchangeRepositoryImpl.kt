@@ -33,7 +33,7 @@ class ExchangeRepositoryImpl @Inject constructor(
                 val currencyExchangeList= mutableListOf<CurrencyExchange>()
                 currencies.forEach { (code, name) ->
                     val rate=currencyRates.rates[code] ?: 0.0
-                    currencyExchangeList.add(CurrencyExchange(code, name, rate.roundOffDecimal(), currencyRates.base, 0.0))
+                    currencyExchangeList.add(CurrencyExchange(code, name, rate.roundOffDecimal(), currencyRates.base, 1.0))
                 }
                 currencyExchangeList
             },

@@ -22,6 +22,13 @@ class CurrencyViewModel @Inject constructor(
     private val _currencyRates = MutableStateFlow<Resource<List<CurrencyExchange>>>(Resource.Loading())
     val currencyRates = _currencyRates.asStateFlow()
 
+
+    private val _currencyRatesUpdates = MutableStateFlow(currencyRates.value.data ?: emptyList())
+    val currencyRatesUpdates = _currencyRatesUpdates.asStateFlow()
+
+    val currenciesList = mutableListOf<String>()
+
+
     init {
         getCurrencyRates()
     }
@@ -37,7 +44,30 @@ class CurrencyViewModel @Inject constructor(
                 Timber.d("getCurrencyRates: Success")
                 Timber.d("item at first index: ${it.data?.getOrNull(0)}")
                 _currencyRates.emit(it)
+
+                currenciesList.clear()
+                it.data?.map {
+                    currenciesList.add("${it.code} - ${it.name}")
+                }
+                currenciesList.sort()
             }
         }
     }
+
+
+    fun updateCurrencyValue(code: String, value: Double) {
+        viewModelScope.launch {
+            val currencyExchange = _currencyRatesUpdates.value.find { it.code == code }
+            currencyExchange?.let {
+                val updatedCurrencyExchange = it.copy(value = value)
+                //based on this update all currency rate with new selected base currency
+                val updatedList = _currencyRatesUpdates.value.map {
+                    val rate = it.rate / updatedCurrencyExchange.rate
+                    it.copy(value = rate * updatedCurrencyExchange.value)
+                }
+                _currencyRatesUpdates.emit(updatedList)
+            }
+        }
+    }
+
 }

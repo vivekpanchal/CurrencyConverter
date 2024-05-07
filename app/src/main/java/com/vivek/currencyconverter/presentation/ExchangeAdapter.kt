@@ -32,7 +32,7 @@ class ExchangeAdapter : ListAdapter<CurrencyExchange, ExchangeAdapter.ViewHolder
         ) {
             binding.apply {
                 binding.tvCode.text = item.code
-                binding.tvRate.text = item.rate.roundOffDecimal().toString()
+                binding.tvRate.text = (item.value * item.rate).roundOffDecimal().toString()
             }
         }
 
